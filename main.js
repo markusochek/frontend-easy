@@ -42,40 +42,35 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = new FormData();
       formData.append("file", file);
 
-      // Получаем токен OAuth из куки, localStorage или любого другого места
-      const token = "YOUR_OAUTH_TOKEN_HERE"; // Замените на ваш токен OAuth
-
-      // Формируем URL запроса для загрузки файла на Диск
-      const uploadUrl =
-        "https://cloud-api.yandex.net/v1/disk/resources/upload?path=/photos/" +
-        file.name;
+      // // Получаем токен OAuth из куки, localStorage или любого другого места
+      // const token = "YOUR_OAUTH_TOKEN_HERE"; // Замените на ваш токен OAuth
+      //
+      // // Формируем URL запроса для загрузки файла на Диск
+      // const uploadUrl =
+      //   "https://cloud-api.yandex.net/v1/disk/resources/upload?path=/photos/" +
+      //   file.name;
 
       // Выполняем POST-запрос на загрузку файла
-      fetch(uploadUrl, {
+      fetch("http://localhost:3000/images", {
         method: "POST",
-        headers: {
-          Authorization: "OAuth " + token,
-        },
         body: formData,
       })
         .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
+          if (!response.ok) throw new Error("Network response was not ok");
           return response.json();
         })
-        .then((data) => {
+        .then((image) => {
           // Обрабатываем успешный ответ от сервера
-          console.log("File uploaded successfully:", data);
+          console.log("File uploaded successfully:", image);
 
           // Добавляем изображение в галерею
           const galleryItem = document.createElement("div");
           galleryItem.classList.add("gallery-item");
 
-          const img = document.createElement("img");
-          img.src = data.href; // Предполагается, что объект data содержит ссылку на загруженное изображение
-          img.alt = "Image";
-          galleryItem.appendChild(img);
+          const img = document.createElement("img")
+          img.src = "data:image/png;base64,"+image
+          img.alt = "image"
+          galleryItem.appendChild(img)
 
           // Добавляем элемент галереи к контейнеру
           gallery.appendChild(galleryItem);
