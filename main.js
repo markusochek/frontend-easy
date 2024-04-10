@@ -97,7 +97,10 @@ document.addEventListener("DOMContentLoaded", function () {
                   button.onclick = async () => {
                       await fetch(`http://localhost:3000/api/images/original/?filePath=${response.filePath}`)
                           .then(res => res.json())
-                          .then(res => console.log(res))
+                          .then(res => {
+                              window.open(img.src, "_blank");
+                              console.log("fweefewfwefweffefewwwfewwe")
+                          })
                   }
                   div.appendChild(button)
                   galleryItem.appendChild(div)
@@ -116,12 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                   galleryItem.classList.add("gallery-item")
                   const img = document.createElement("img")
-                  const fileReader = new FileReader()
-                  fileReader.onload = () => {
-                      // img.src = fileReader.result;
-                      img.src = "data:image/png;base64," + fileReader.result;
-                  }
-                  // img.src = "data:image/png;base64," + fileReader.result;
+                  img.src = URL.createObjectURL(file)
                   img.alt = "image"
                   galleryItem.appendChild(img)
 
