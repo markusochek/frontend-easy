@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
                           method: "DELETE"
                       })
                           .then(res => res.json())
-                          .then(res => console.log(res))
+                          .then(() => galleryItem.remove())
                   }
                   galleryItem.appendChild(button)
 
@@ -84,7 +84,50 @@ document.addEventListener("DOMContentLoaded", function () {
                   if (!response.ok) throw new Error("Network response was not ok")
                   return response.json();
               })
-              .then((response) => console.log("File uploaded successfully:", response))
+              .then((response) => {
+                  console.log("File uploaded successfully:", response)
+                  const galleryItem = document.createElement("div")
+                  const div = document.createElement("div")
+                  div.className = "overlay"
+                  div.innerText = "55.0 kB"
+
+                  let button = document.createElement("button")
+                  button.innerText = "Развернуть"
+                  button.className = "expand-button"
+                  button.onclick = async () => {
+                      await fetch(`http://localhost:3000/api/images/original/?filePath=${response.filePath}`)
+                          .then(res => res.json())
+                          .then(res => console.log(res))
+                  }
+                  div.appendChild(button)
+                  galleryItem.appendChild(div)
+
+                  button = document.createElement("button")
+                  button.innerText = "Удалить"
+                  button.className = "delete-button"
+                  button.onclick = async () => {
+                      await fetch(`http://localhost:3000/api/images/?filePath=${response.filePath}`, {
+                          method: "DELETE"
+                      })
+                          .then(res => res.json())
+                          .then(() => galleryItem.remove())
+                  }
+                  galleryItem.appendChild(button)
+
+                  galleryItem.classList.add("gallery-item")
+                  const img = document.createElement("img")
+                  const fileReader = new FileReader()
+                  fileReader.onload = () => {
+                      // img.src = fileReader.result;
+                      img.src = "data:image/png;base64," + fileReader.result;
+                  }
+                  // img.src = "data:image/png;base64," + fileReader.result;
+                  img.alt = "image"
+                  galleryItem.appendChild(img)
+
+                  // Добавляем элемент галереи к контейнеру
+                  gallery.appendChild(galleryItem);
+              })
               .catch((error) => console.error("There has been a problem with your fetch operation:", error));
       }
   });

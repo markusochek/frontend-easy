@@ -1,8 +1,11 @@
 const express = require('express');
+const expressFileUpload = require('express-fileupload');
+const fs = require('fs');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(expressFileUpload());
 
 app.get("/", async function (request, response) {
     response.sendFile(__dirname + "/index.html")
