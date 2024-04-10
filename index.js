@@ -13,6 +13,9 @@ app.get("/main.js", async function (request, response) {
 app.get("/style.css", async function (request, response) {
     response.sendFile(__dirname + "/style.css")
 })
+app.get("/favicon.ico", async function (request, response) {
+    response.sendFile(__dirname + "/favicon.ico")
+})
 
 app.listen(3001);
 // app.listen(process.env.PORT, () => {

@@ -5,83 +5,88 @@ document.addEventListener("DOMContentLoaded", function () {
   const gallery = document.getElementById("gallery");
 
   // Обработчик события для кнопки "Запросить все картинки"
-  requestImagesButton.addEventListener("click", function () {
-    // Выполняем GET-запрос к серверу
-    fetch("http://localhost:3000/images")
-      .then((response) => {
-        if (!response.ok) throw new Error("Network response was not ok")
-        return response.json();
-      })
-      .then((data) => {
-        // Добавляем полученные изображения к галерее
-        data.forEach((image) => {
-          const galleryItem = document.createElement("div")
-          galleryItem.classList.add("gallery-item")
-          const img = document.createElement("img")
-          img.src = "data:image/png;base64,"+image
-          img.alt = "image"
-          galleryItem.appendChild(img)
+  requestImagesButton.addEventListener("click", async function () {
+      // Выполняем GET-запрос к серверу
+      await fetch("http://localhost:3000/api/images")
+          .then((response) => {
+              if (!response.ok) throw new Error("Network response was not ok")
+              return response.json();
+          })
+          .then((data) => {
+              gallery.replaceChildren()
+              // Добавляем полученные изображения к галерее
+              data.forEach((image) => {
+                  const galleryItem = document.createElement("div")
+                  const div = document.createElement("div")
+                  div.className = "overlay"
+                  div.innerText = "55.0 kB"
 
-          // Добавляем элемент галереи к контейнеру
-          gallery.appendChild(galleryItem);
-        });
-      })
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error
-        );
-      });
+                  let button = document.createElement("button")
+                  button.innerText = "Развернуть"
+                  button.className = "expand-button"
+                  button.onclick = async () => {
+                      await fetch(`http://localhost:3000/api/images/original/?filePath=${image.filePath}`)
+                      .then(res => res.json())
+                      .then(res => console.log(res))
+                  }
+                  div.appendChild(button)
+                  galleryItem.appendChild(div)
+
+                  button = document.createElement("button")
+                  button.innerText = "Удалить"
+                  button.className = "delete-button"
+                  button.onclick = async () => {
+                      await fetch(`http://localhost:3000/api/images/?filePath=${image.filePath}`, {
+                          method: "DELETE"
+                      })
+                          .then(res => res.json())
+                          .then(res => console.log(res))
+                  }
+                  galleryItem.appendChild(button)
+
+                  galleryItem.classList.add("gallery-item")
+                  const img = document.createElement("img")
+                  img.src = "data:image/png;base64," + image.buffer
+                  img.alt = "image"
+                  galleryItem.appendChild(img)
+
+                  // Добавляем элемент галереи к контейнеру
+                  gallery.appendChild(galleryItem);
+              });
+          })
+          .catch((error) => {
+              console.error(
+                  "There has been a problem with your fetch operation:",
+                  error
+              );
+          });
   });
 
   // Обработчик события для кнопки "Добавить картинку"
-  addImageButton.addEventListener("change", function (event) {
-    const file = event.target.files[0];
-    if (file) {
-      // Создаем объект FormData и добавляем в него файл
-      const formData = new FormData();
-      formData.append("file", file);
+  addImageButton.addEventListener("change", async function (event) {
+      const file = event.target.files[0];
+      if (file) {
+          // Создаем объект FormData и добавляем в него файл
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("createdAt", "2012-12-11");
+          formData.append("name", "piskamangusta");
+          formData.append("fileSize", 50);
+          formData.append("height", 500);
+          formData.append("width", 500);
 
-      // // Получаем токен OAuth из куки, localStorage или любого другого места
-      // const token = "YOUR_OAUTH_TOKEN_HERE"; // Замените на ваш токен OAuth
-      //
-      // // Формируем URL запроса для загрузки файла на Диск
-      // const uploadUrl =
-      //   "https://cloud-api.yandex.net/v1/disk/resources/upload?path=/photos/" +
-      //   file.name;
-
-      // Выполняем POST-запрос на загрузку файла
-      fetch("http://localhost:3000/images", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error("Network response was not ok");
-          return response.json();
-        })
-        .then((image) => {
-          // Обрабатываем успешный ответ от сервера
-          console.log("File uploaded successfully:", image);
-
-          // Добавляем изображение в галерею
-          const galleryItem = document.createElement("div");
-          galleryItem.classList.add("gallery-item");
-
-          const img = document.createElement("img")
-          img.src = "data:image/png;base64,"+image
-          img.alt = "image"
-          galleryItem.appendChild(img)
-
-          // Добавляем элемент галереи к контейнеру
-          gallery.appendChild(galleryItem);
-        })
-        .catch((error) => {
-          console.error(
-            "There has been a problem with your fetch operation:",
-            error
-          );
-        });
-    }
+          // Выполняем POST-запрос на загрузку файла
+          await fetch("http://localhost:3000/api/images", {
+              method: "POST",
+              body: formData,
+          })
+              .then((response) => {
+                  if (!response.ok) throw new Error("Network response was not ok")
+                  return response.json();
+              })
+              .then((response) => console.log("File uploaded successfully:", response))
+              .catch((error) => console.error("There has been a problem with your fetch operation:", error));
+      }
   });
     
   //Открытие картинки в новой вкладке
