@@ -27,7 +27,16 @@ document.addEventListener("DOMContentLoaded", function () {
                   button.onclick = async () => {
                       await fetch(`http://localhost:3000/api/images/original/?filePath=${image.filePath}`)
                       .then(res => res.json())
-                      .then(res => console.log(res))
+                      .then(response => {
+                          console.log(response.buffer.data)
+                          document.body.innerHTML = `<img src=data:image/png;base64,${response.buffer} alt="load1"></img>`;
+                          button = document.createElement("button")
+                          button.innerText = "вернуться";
+                          button.onclick = () => {
+                              window.location.replace("http://localhost:3001");
+                          }
+                          document.body.appendChild(button);
+                      })
                   }
                   div.appendChild(button)
                   galleryItem.appendChild(div)
@@ -97,9 +106,14 @@ document.addEventListener("DOMContentLoaded", function () {
                   button.onclick = async () => {
                       await fetch(`http://localhost:3000/api/images/original/?filePath=${response.filePath}`)
                           .then(res => res.json())
-                          .then(res => {
-                              window.open(img.src, "_blank");
-                              console.log("fweefewfwefweffefewwwfewwe")
+                          .then(response => {
+                              document.body.innerHTML = `<img src=data:image/png;base64,${response.buffer} alt="load1"></img>`;
+                              button = document.createElement("button")
+                              button.innerText = "вернуться";
+                              button.onclick = () => {
+                                  window.location.replace("http://localhost:3001");
+                              }
+                              document.body.appendChild(button);
                           })
                   }
                   div.appendChild(button)
@@ -128,17 +142,5 @@ document.addEventListener("DOMContentLoaded", function () {
               })
               .catch((error) => console.error("There has been a problem with your fetch operation:", error));
       }
-  });
-    
-  //Открытие картинки в новой вкладке
-  const expandButtons = document.querySelectorAll(".expand-button");
-
-  expandButtons.forEach(function(button) {
-      button.addEventListener("click", function(event) {
-          const img = this.closest(".gallery-item").querySelector("img");
-          if (img) {
-              window.open(img.src, "_blank");
-          }
-      });
   });
 });
